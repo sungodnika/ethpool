@@ -26,12 +26,14 @@ contract ETHPool {
     _;
   }
 
+  // used by the owner of the contract to deposit rewards
   function deposit_reward() external payable onlyOwner {
     require(total_stake > 0 , "No stakes to distribute rewards");
     reward_per_unit = reward_per_unit + msg.value * 100 / total_stake;
     emit Rewards(msg.value);
   }
 
+  // used by users to deposit stakes
   function deposit_stake() external payable {
     stake[msg.sender] += msg.value;
     reward_tally[msg.sender] += reward_per_unit * msg.value / 100;
@@ -39,6 +41,7 @@ contract ETHPool {
     emit Deposited(msg.sender, msg.value, stake[msg.sender], total_stake);
   }
 
+  // used by users to withdraw stakes
   function withdraw_stake(uint amount) external returns (bool) {
     require(stake[msg.sender] > amount, "Not enough amount to withdraw");
     stake[msg.sender] -= amount;
@@ -52,6 +55,7 @@ contract ETHPool {
     return success;
   }
 
+  // used by users to withdraw rewards
   function withdraw_rewards() external returns (bool) {
     uint reward = stake[msg.sender] * reward_per_unit / 100 - reward_tally[msg.sender];
     reward_tally[msg.sender] = stake[msg.sender] * reward_per_unit / 100;
